@@ -54,7 +54,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        NewClient
+                                        core.Main
                                     </mainClass>
                                 </manifest>
                             </archive>

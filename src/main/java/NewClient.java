@@ -27,7 +27,7 @@ public class NewClient {
             try {
 
                 String ipAddress = InetAddress.getLocalHost().getHostAddress();
-                TCPMessage tcpMessage = new TCPMessage ("Test", commandType, ipAddress, 173);
+                TCPMessage tcpMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
 
                 Socket socket = new Socket(ipAddress, 5000);
 
@@ -45,6 +45,7 @@ public class NewClient {
                     Scanner in = new Scanner(s.getInputStream());
                     //while (in.hasNextLine()) {
                     String response = in.nextLine();
+
                     TCPMessage receivedMessage = parseJason(response);
                     //System.out.println(receivedMessage.dataList);
                     //}
@@ -88,18 +89,19 @@ public class NewClient {
         public String messageType;
         public String commandType;
         public String senderIP;
+        public String destinationIP;
         public long sendTimestamp;
-        public String machineList;
-        public String machineStartTimes;
+
         public String dataList;
 
 
-        public TCPMessage(String messageType, String commandType, String senderIP, long sendTimestamp)
+        public TCPMessage(String messageType, String commandType, String senderIP, String destinationIP,  long sendTimestamp)
         {
             this.commandType = commandType;
             this.messageType = messageType;
             this.senderIP = senderIP;
             this.sendTimestamp = sendTimestamp;
+            this.destinationIP = destinationIP;
         }
 
 
