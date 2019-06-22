@@ -15,6 +15,9 @@ public class NewClient {
 
         //NewClient client = new NewClient();
         //test
+        String putCommand[] = {"",""};
+        String localFileName;
+        String fs533FileName;
 
         while (true) {
 
@@ -32,7 +35,25 @@ public class NewClient {
                 Socket socket = new Socket(ipAddress, 5000);
 
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                out.println(toJson(tcpMessage));
+
+                if (commandType.contains("put"))
+                {
+                    putCommand = commandType.split("\\s+");
+                    commandType = putCommand[0];
+                    localFileName = putCommand[1];
+                    fs533FileName = putCommand[2];
+
+                    TCPMessage localMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
+                    localMessage.localFileName = localFileName;
+                    localMessage.fs533FileName = fs533FileName;
+                    out.println(toJson(localMessage));
+                    socket.close();
+
+                }
+
+                else {
+
+                out.println(toJson(tcpMessage));}
 
                 socket.close();
 
@@ -93,7 +114,9 @@ public class NewClient {
         public long sendTimestamp;
 
         public String dataList;
-
+        public String localFileName;
+        public String fs533FileName;
+        public boolean fileSaveConfirm;
 
         public TCPMessage(String messageType, String commandType, String senderIP, String destinationIP,  long sendTimestamp)
         {
@@ -102,6 +125,7 @@ public class NewClient {
             this.senderIP = senderIP;
             this.sendTimestamp = sendTimestamp;
             this.destinationIP = destinationIP;
+
         }
 
 
