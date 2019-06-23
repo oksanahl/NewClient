@@ -13,8 +13,7 @@ public class NewClient {
     public static int portNumIn = 5000;
     public static int portNumOut = 6000;
 
-    public static String putCommand[] = {"",""};
-    public static String getCommand[] = {"",""};
+    public static String enteredCommand[] = {"",""};
 
     public static String localFileName;
     public static String fs533FileName;
@@ -34,42 +33,42 @@ public class NewClient {
                 String ipAddress = InetAddress.getLocalHost().getHostAddress();
                 TCPMessage tcpMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
 
-                Socket socket = new Socket(ipAddress, portNumOut);
+                Socket socket = new Socket(ipAddress, portNumIn);
 
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                switch (commandType) {
+                if (commandType.contains("put")) {
 
-                    case "put":
-                        out.println(toJson(executePut(commandType)));
-                        break;
-                        //socket.close();
+                    out.println(toJson(executePut(commandType)));
+                    socket.close(); }
 
-                    case "get":
-                        out.println(toJson(executeGet(commandType)));
-                        break;
+                else if (commandType.contains ("get")){
 
-                    case "remove":
-                        out.println(toJson(executeRemove(commandType)));
-                         break;
-
-                    case "locate":
-                        out.println(toJson(executeLocate(commandType)));
-                         break;
-
-
-                   //All other commands (list, grep, disconnect, ls and lshere)
-                    default:
-                        out.println(toJson(tcpMessage));
-                        break;
+                    out.println(toJson(executeGet(commandType)));
+                    socket.close();
 
                 }
 
-               // socket.close();
+                else if (commandType.contains ("remove")){
+
+                    out.println(toJson(executeRemove(commandType)));
+                    socket.close();
+
+                }
+
+                else if (commandType.contains("locate")){
+
+                    out.println(toJson(executeLocate(commandType)));
+                    socket.close();
+                }
+
+                else {
+                    out.println(toJson(tcpMessage));
+                    socket.close();}
 
                 try {
 
-                    ServerSocket listener = new ServerSocket (portNumIn);
+                    ServerSocket listener = new ServerSocket (portNumOut);
                     Socket s = null;
                     s = listener.accept();
 
@@ -118,10 +117,10 @@ public class NewClient {
     public static TCPMessage executePut (String commandType) throws UnknownHostException {
 
         String ipAddress = InetAddress.getLocalHost().getHostAddress();
-        putCommand = commandType.split("\\s+");
-        commandType = putCommand[0];
-        localFileName = putCommand[1];
-        fs533FileName = putCommand[2];
+        enteredCommand = commandType.split("\\s+");
+        commandType = enteredCommand[0];
+        localFileName = enteredCommand[1];
+        fs533FileName = enteredCommand[2];
 
         TCPMessage localMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
         localMessage.localFileName = localFileName;
@@ -132,10 +131,10 @@ public class NewClient {
     public static TCPMessage executeGet (String commandType) throws UnknownHostException {
 
         String ipAddress = InetAddress.getLocalHost().getHostAddress();
-        putCommand = commandType.split("\\s+");
-        commandType = putCommand[0];
-        localFileName = putCommand[2];
-        fs533FileName = putCommand[1];
+        enteredCommand = commandType.split("\\s+");
+        commandType = enteredCommand[0];
+        localFileName = enteredCommand[2];
+        fs533FileName = enteredCommand[1];
 
         TCPMessage localMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
         localMessage.localFileName = localFileName;
@@ -146,9 +145,9 @@ public class NewClient {
     public static TCPMessage executeRemove (String commandType) throws UnknownHostException {
 
         String ipAddress = InetAddress.getLocalHost().getHostAddress();
-        putCommand = commandType.split("\\s+");
-        commandType = putCommand[0];
-        fs533FileName = putCommand[1];
+        enteredCommand = commandType.split("\\s+");
+        commandType = enteredCommand[0];
+        fs533FileName = enteredCommand[1];
 
         TCPMessage localMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
         localMessage.fs533FileName = fs533FileName;
@@ -158,9 +157,9 @@ public class NewClient {
     public static TCPMessage executeLocate (String commandType) throws UnknownHostException {
 
         String ipAddress = InetAddress.getLocalHost().getHostAddress();
-        putCommand = commandType.split("\\s+");
-        commandType = putCommand[0];
-        fs533FileName = putCommand[1];
+        enteredCommand = commandType.split("\\s+");
+        commandType = enteredCommand[0];
+        fs533FileName = enteredCommand[1];
 
         TCPMessage localMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
         localMessage.fs533FileName = fs533FileName;
