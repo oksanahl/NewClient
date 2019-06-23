@@ -68,33 +68,45 @@ public class NewClient {
 
                 try {
 
+
                     ServerSocket listener = new ServerSocket (portNumOut);
                     Socket s = null;
                     s = listener.accept();
 
                     Scanner in = new Scanner(s.getInputStream());
-                    //while (in.hasNextLine()) {
                     String response = in.nextLine();
 
                     TCPMessage receivedMessage = parseJason(response);
-                    //System.out.println(receivedMessage.dataList);
-                    //}
+                    parseReceivedMessage(receivedMessage);
 
-                    Gson json = new Gson();
-                    String[] temp = json.fromJson(receivedMessage.dataList,String[].class);
-                    Vector<String> tempList = new Vector<String>();
-                    for(int i = 0; i < temp.length; i++)
-                    {
-                        tempList.add(temp[i]);
+                   if (receivedMessage.commandType.contains("put")){
+
+                        String confirmAsk = in.nextLine();
+                        TCPMessage confirmMessage = parseJason(confirmAsk);
+                        parseReceivedMessage(confirmMessage);
+                        listener.close();
+
+                        commandType = scanner.nextLine();
+
+                        switch (commandType) {
+
+                            case "yes":
+                                out.println(toJson(tcpMessage));
+                                System.out.println("Put command has been confirmed. File will be updated.");
+                                socket.close();
+                                break;
+
+                            default:
+                                System.out.println ("Put command has been aborted either no or an invalid response has been received");
+                                socket.close();
+                                break;
+
+                        }
                     }
 
-                    for (String val: tempList
-                    ) {
-                        System.out.println(val);
-                    }
+                   else {
 
-
-                    listener.close();
+                    listener.close();}
                 } catch (Exception e) {
                     System.out.println("Exception: " + e.getMessage()); }
 
@@ -112,6 +124,22 @@ public class NewClient {
         Gson gson = new Gson();
         TCPMessage parsedTCPMessage = gson.fromJson(message,TCPMessage.class );
         return parsedTCPMessage;
+    }
+
+    public static void parseReceivedMessage (TCPMessage receivedMessage) {
+
+        Gson json = new Gson();
+        String[] temp = json.fromJson(receivedMessage.dataList,String[].class);
+        Vector<String> tempList = new Vector<String>();
+        for(int i = 0; i < temp.length; i++)
+        {
+            tempList.add(temp[i]);
+        }
+
+        for (String val: tempList
+        ) {
+            System.out.println(val);
+        }
     }
 
     public static TCPMessage executePut (String commandType) throws UnknownHostException {
