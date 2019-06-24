@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.concurrent.*;
 
 import com.google.gson.Gson;
 
@@ -20,12 +21,10 @@ public class NewClient {
 
     public static void main(String[] args) throws Exception {
 
-
         while (true) {
 
-            System.out.println("Enter command to execute: put, get, remove, ls, locate, lshere or list, disconnect and grep");
             Scanner scanner = new Scanner(System.in);
-
+            System.out.println("Enter command to execute: put, get, remove, ls, locate, lshere or list, disconnect and grep");
             String commandType = scanner.nextLine();
 
             try {
@@ -68,7 +67,6 @@ public class NewClient {
 
                 try {
 
-
                     ServerSocket listener = new ServerSocket (portNumOut);
                     Socket s = null;
                     s = listener.accept();
@@ -81,22 +79,56 @@ public class NewClient {
 
                    if (receivedMessage.commandType.contains("put")){
 
-                        String confirmAsk = in.nextLine();
-                        TCPMessage confirmMessage = parseJason(confirmAsk);
-                        parseReceivedMessage(confirmMessage);
-                        listener.close();
+                       s = listener.accept();
+                       in = new Scanner(s.getInputStream());
+                       String confirmAsk = in.nextLine();
+                       TCPMessage confirmMessage = parseJason(confirmAsk);
+                       System.out.println(confirmMessage.dataList);
+                       //parseReceivedMessage(confirmMessage);
+                       listener.close();
 
-                        commandType = scanner.nextLine();
+                      /* ExecutorService executor = Executors.newFixedThreadPool(1);
+                       Future <String> future = executor.submit(() ->{
+                       try (Scanner scn = new Scanner(System.in)) {
+                           String text = scn.nextLine();
+                           scn.close();
+                           return  text;
+                       }});
+
+                       try {String userResponse = future.get(5, TimeUnit.SECONDS);
+                           if (userResponse.contains("yes")) {
+                               commandType = "userRespYes";
+                           }
+                           else {
+                               commandType ="userRespNo";
+                           }}
+
+                       catch (InterruptedException | ExecutionException | TimeoutException e1) {
+                           commandType = "userRespNo";
+                       }
+
+                       executor.shutdown();
+                       executor.awaitTermination(1000, TimeUnit.MILLISECONDS);*/
+
+                        //scanner = new Scanner(System.in);
+                       // commandType = scanner.nextLine();
+
+                        socket = new Socket(ipAddress, portNumIn);
+                        out = new PrintWriter(socket.getOutputStream(), true);
+
+                        tcpMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
 
                         switch (commandType) {
-
                             case "yes":
+                                tcpMessage.commandType = "userRespYes";
                                 out.println(toJson(tcpMessage));
                                 System.out.println("Put command has been confirmed. File will be updated.");
                                 socket.close();
                                 break;
 
                             default:
+                                tcpMessage.commandType = "userRespNo";
+                                out.println(toJson(tcpMessage));
                                 System.out.println ("Put command has been aborted either no or an invalid response has been received");
                                 socket.close();
                                 break;
@@ -105,8 +137,8 @@ public class NewClient {
                     }
 
                    else {
-
-                    listener.close();}
+                       listener.close();
+                   }
                 } catch (Exception e) {
                     System.out.println("Exception: " + e.getMessage()); }
 
@@ -194,32 +226,6 @@ public class NewClient {
         return localMessage;
     }
 
-    public static class TCPMessage {
-
-        public String messageType;
-        public String commandType;
-        public String senderIP;
-        public String destinationIP;
-        public long sendTimestamp;
-
-        public String dataList;
-        public String localFileName;
-        public String fs533FileName;
-        public boolean fileSaveConfirm;
-
-        public TCPMessage(String messageType, String commandType, String senderIP, String destinationIP,  long sendTimestamp)
-        {
-            this.commandType = commandType;
-            this.messageType = messageType;
-            this.senderIP = senderIP;
-            this.sendTimestamp = sendTimestamp;
-            this.destinationIP = destinationIP;
-
-        }
-
-
-
-    }
 }
 
 
