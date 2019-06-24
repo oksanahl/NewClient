@@ -135,7 +135,7 @@ public class NewClient {
 
                        System.out.println("Unknown response from FS533");
                        }
-
+                    listener.close();
                    }
 
                    else {
