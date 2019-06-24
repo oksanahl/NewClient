@@ -87,13 +87,12 @@ public class NewClient {
                        //parseReceivedMessage(confirmMessage);
                        listener.close();
 
-                      /* ExecutorService executor = Executors.newFixedThreadPool(1);
+                       ExecutorService executor = Executors.newFixedThreadPool(1);
                        Future <String> future = executor.submit(() ->{
-                       try (Scanner scn = new Scanner(System.in)) {
-                           String text = scn.nextLine();
-                           scn.close();
-                           return  text;
-                       }});
+                       //try (Scanner scn = new Scanner(System.in)) {
+                          return scanner.nextLine();});
+                           //return  text;
+                       //}});
 
                        try {String userResponse = future.get(5, TimeUnit.SECONDS);
                            if (userResponse.contains("yes")) {
@@ -108,7 +107,7 @@ public class NewClient {
                        }
 
                        executor.shutdown();
-                       executor.awaitTermination(1000, TimeUnit.MILLISECONDS);*/
+                       executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
 
                         //scanner = new Scanner(System.in);
                        // commandType = scanner.nextLine();
@@ -119,15 +118,13 @@ public class NewClient {
                         tcpMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
 
                         switch (commandType) {
-                            case "yes":
-                                tcpMessage.commandType = "userRespYes";
+                            case "userRespYes":
                                 out.println(toJson(tcpMessage));
                                 System.out.println("Put command has been confirmed. File will be updated.");
                                 socket.close();
                                 break;
 
                             default:
-                                tcpMessage.commandType = "userRespNo";
                                 out.println(toJson(tcpMessage));
                                 System.out.println ("Put command has been aborted either no or an invalid response has been received");
                                 socket.close();
