@@ -83,41 +83,39 @@ public class NewClient {
                        in = new Scanner(s.getInputStream());
                        String confirmAsk = in.nextLine();
                        TCPMessage confirmMessage = parseJason(confirmAsk);
-                       System.out.println(confirmMessage.dataList);
-                       //parseReceivedMessage(confirmMessage);
-                       listener.close();
 
+                       if (confirmMessage.commandType.contains("fileSaved")) {
+
+                               System.out.println("File has been successfully saved to FS533");
+                               listener.close();
+                       }
+
+                       else if (confirmMessage.commandType.contains("confirmAsk")) {
+
+                       System.out.println(confirmMessage.commandType);
                        ExecutorService executor = Executors.newFixedThreadPool(1);
                        Future <String> future = executor.submit(() ->{
-                       //try (Scanner scn = new Scanner(System.in)) {
                           return scanner.nextLine();});
-                           //return  text;
-                       //}});
 
                        try {String userResponse = future.get(5, TimeUnit.SECONDS);
                            if (userResponse.contains("yes")) {
-                               commandType = "userRespYes";
-                           }
+                               commandType = "userRespYes";}
+
                            else {
-                               commandType ="userRespNo";
-                           }}
+                               commandType ="userRespNo"; }}
 
                        catch (InterruptedException | ExecutionException | TimeoutException e1) {
-                           commandType = "userRespNo";
-                       }
+                               commandType = "userRespNo"; }
 
                        executor.shutdown();
                        executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
 
-                        //scanner = new Scanner(System.in);
-                       // commandType = scanner.nextLine();
+                       socket = new Socket(ipAddress, portNumIn);
+                       out = new PrintWriter(socket.getOutputStream(), true);
 
-                        socket = new Socket(ipAddress, portNumIn);
-                        out = new PrintWriter(socket.getOutputStream(), true);
+                       tcpMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
 
-                        tcpMessage = new TCPMessage ("client", commandType, ipAddress, ipAddress, 173);
-
-                        switch (commandType) {
+                       switch (commandType) {
                             case "userRespYes":
                                 out.println(toJson(tcpMessage));
                                 System.out.println("Put command has been confirmed. File will be updated.");
@@ -130,8 +128,15 @@ public class NewClient {
                                 socket.close();
                                 break;
 
-                        }
+                       }
                     }
+
+                   else {
+
+                       System.out.println("Unknown response from FS533");
+                       }
+
+                   }
 
                    else {
                        listener.close();
